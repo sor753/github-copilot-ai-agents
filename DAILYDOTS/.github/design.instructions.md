@@ -10,103 +10,84 @@ applyTo: "**/*.tsx,**/*.ts,**/*.css"
 
 ## レイアウトの一貫性
 
-- レイアウトは CSS カスタムプロパティで定義したグリッド・幅の値を使用する
-- マジックナンバーによるサイズ指定は禁止。必ずデザイントークンを参照する
-- コンテンツの最大幅は統一する（例: `--layout-max-width: 768px`）
-- レスポンシブはモバイルファーストで記述する
+- レイアウトは Tailwind のスペーシング・サイズスケールに従う
+- マジックナンバーによる任意値（`w-[743px]` など）は禁止。`tailwind.config` のトークンを使用する
+- コンテンツの最大幅は `max-w-*` で統一する（例: `max-w-2xl`）
+- レスポンシブはモバイルファーストで記述する（`sm:` `md:` `lg:` の順）
 
-```css
-/* ✅ Good */
-max-width: var(--layout-max-width);
+```tsx
+{/* ✅ Good */}
+<div className="mx-auto max-w-2xl px-4">
 
-/* ❌ Bad */
-max-width: 743px;
+{/* ❌ Bad */}
+<div style={{ maxWidth: '743px', padding: '13px' }}>
 ```
 
 ---
 
 ## スペーシングシステム
 
-- スペーシングは 4px ベースのスケールに従う
-- 使用できる値: `4px / 8px / 12px / 16px / 24px / 32px / 48px / 64px`
-- CSS カスタムプロパティで定義し、直接の `px` 値は使用しない
+- スペーシングは Tailwind のデフォルトスケール（4px 基準）に従う
+- プロジェクト固有のスペーシングトークンは `tailwind.config` の `theme.extend.spacing` で定義する
+- 任意値（`p-[13px]`）は禁止。スケール外の値が必要な場合はトークンを追加する
 
-```css
-:root {
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-12: 48px;
-  --space-16: 64px;
-}
+```tsx
+{/* ✅ Good */}
+<div className="p-4 mt-6 gap-3">
 
-/* ✅ Good */
-padding: var(--space-4);
-
-/* ❌ Bad */
-padding: 15px;
+{/* ❌ Bad */}
+<div className="p-[13px] mt-[22px]">
 ```
 
 ---
 
 ## タイポグラフィ階層
 
-- フォントサイズ・ウェイト・行間はデザイントークンで管理する
+- フォントサイズ・ウェイト・行間は Tailwind のタイポグラフィスケールを使用する
 - 見出し階層（h1〜h4）は明確に区別する。階層を飛ばさない
-- 本文の行間は `1.6` 以上を確保し、可読性を優先する
+- 本文の行間は `leading-relaxed`（1.625）以上を確保し、可読性を優先する
 - 装飾目的のフォントサイズ変更は禁止。意味のある階層のみ使用する
+- プロジェクト固有のフォント設定は `tailwind.config` の `theme.extend.fontFamily` で管理する
 
-```css
-:root {
-  --text-xs: 0.75rem;   /* 12px */
-  --text-sm: 0.875rem;  /* 14px */
-  --text-md: 1rem;      /* 16px: 本文基準 */
-  --text-lg: 1.125rem;  /* 18px */
-  --text-xl: 1.25rem;   /* 20px */
-  --text-2xl: 1.5rem;   /* 24px */
-  --text-3xl: 1.875rem; /* 30px */
+```tsx
+{/* ✅ Good */}
+<h1 className="text-3xl font-bold leading-tight">
+<p className="text-base leading-relaxed text-gray-700">
 
-  --font-normal: 400;
-  --font-medium: 500;
-  --font-bold: 700;
-
-  --leading-body: 1.6;
-  --leading-heading: 1.2;
-}
+{/* ❌ Bad */}
+<p style={{ fontSize: '17px', lineHeight: '1.4' }}>
 ```
 
 ---
 
 ## カラー使用
 
-- カラーはセマンティックトークンで管理する（用途を名前に反映する）
-- 生の色値（`#3b82f6` など）を直接使用することは禁止
-- ライト・ダークモード対応を前提に、`prefers-color-scheme` でトークンを切り替える
-- インタラクティブ要素には必ずホバー・フォーカス・無効状態のカラーを定義する
+- カラーは Tailwind のカラースケールまたは `tailwind.config` のセマンティックトークンを使用する
+- 生の色値（`text-[#3b82f6]`）を直接使用することは禁止
+- ダークモード対応は `dark:` バリアントで記述する
+- インタラクティブ要素には必ず `hover:` `focus:` `disabled:` の状態クラスを定義する
 
-```css
-:root {
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f5f5f5;
-  --color-text-primary: #111111;
-  --color-text-secondary: #555555;
-  --color-accent: #4f46e5;
-  --color-accent-hover: #4338ca;
-  --color-danger: #dc2626;
-  --color-success: #16a34a;
-  --color-border: #e5e7eb;
-}
+```tsx
+{/* ✅ Good */}
+<button className="bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 disabled:opacity-50">
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg-primary: #111111;
-    --color-text-primary: #f5f5f5;
-    /* ... */
-  }
-}
+{/* ❌ Bad */}
+<button style={{ backgroundColor: '#4f46e5' }}>
+<button className="bg-[#4f46e5]">
+```
+
+`tailwind.config` でのセマンティックトークン定義例：
+
+```js
+theme: {
+  extend: {
+    colors: {
+      accent: { DEFAULT: '#4f46e5', hover: '#4338ca' },
+      danger: '#dc2626',
+      success: '#16a34a',
+    },
+  },
+},
 ```
 
 ---
@@ -115,19 +96,24 @@ padding: 15px;
 
 - カラーコントラスト比は WCAG AA 基準（本文 4.5:1 以上・大文字 3:1 以上）を満たす
 - すべてのインタラクティブ要素はキーボード操作可能にする
-- フォーカスリングを `outline: none` で消すことは禁止。カスタムスタイルで代替する
+- フォーカスリングを `outline-none` で消すことは禁止。`focus-visible:ring-*` でカスタムスタイルを定義する
 - `img` には必ず `alt` を付与する。装飾画像は `alt=""` とする
 - フォーム要素には必ず `label` を関連付ける（`htmlFor` / `aria-label`）
 - 状態変化（ローディング・エラー・成功）は視覚だけでなく `aria-live` でも伝える
 
 ```tsx
-// ✅ Good
-<button aria-label="エントリを削除" onClick={onDelete}>
+{/* ✅ Good */}
+<button
+  aria-label="エントリを削除"
+  className="rounded-md p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+  onClick={onDelete}
+>
   <TrashIcon />
 </button>
 
-// ❌ Bad
+{/* ❌ Bad */}
 <div onClick={onDelete}>×</div>
+<button className="outline-none">...</button>
 ```
 
 ---
@@ -135,16 +121,34 @@ padding: 15px;
 ## コンポーネントの一貫性
 
 - 同じ UI パターンには同じコンポーネントを使う。類似の実装を複数持たない
-- バリアントは props で制御する。目的別に別コンポーネントを作らない
-- インタラクティブ要素のサイズは最小タップ領域 44×44px を確保する
+- バリアントは `cva`（class-variance-authority）で管理し、props で制御する
+- インタラクティブ要素のサイズは最小タップ領域 44×44px（`min-h-[44px] min-w-[44px]`）を確保する
 - ローディング・空・エラー状態を必ず実装する。未定義のまま放置しない
 
 ```tsx
-// ✅ Good: バリアントを props で制御
-<Button variant="primary" size="md">保存</Button>
-<Button variant="danger" size="sm">削除</Button>
+// ✅ Good: cva でバリアントを管理
+const buttonVariants = cva(
+  'rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2',
+  {
+    variants: {
+      variant: {
+        primary: 'bg-indigo-600 text-white hover:bg-indigo-700',
+        danger:  'bg-red-600 text-white hover:bg-red-700',
+      },
+      size: {
+        sm: 'px-3 py-1.5',
+        md: 'px-4 py-2',
+      },
+    },
+    defaultVariants: { variant: 'primary', size: 'md' },
+  }
+);
 
-// ❌ Bad: 目的別に別コンポーネント
+export const Button = ({ variant, size, children }: ButtonProps) => (
+  <button className={buttonVariants({ variant, size })}>{children}</button>
+);
+
+{/* ❌ Bad: 目的別に別コンポーネント */}
 <SaveButton />
 <DeleteButton />
 ```
