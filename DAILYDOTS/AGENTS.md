@@ -14,15 +14,27 @@
 
 ---
 
-## 開発環境
+## ⚠️ 開発環境（最初に必ず確認すること）
 
-Node.js はローカルにインストールしない。すべての開発作業は Docker コンテナ上で行う。
+> **作業開始前に必ずこのセクションを確認する。**
+
+- **Node.js はローカルにインストールしない**
+- **`npm`・`node` をローカルで直接実行することは禁止**
+- **すべての作業は Docker コンテナ内で行う**
+- ローカル環境の確認（`npm -v`・`node -v` など）は行わない
+
+### 作業開始の手順（必ず守ること）
+
+1. `AGENTS.md` を読む（今ここ）
+2. `docker compose up --build` でコンテナを起動する
+3. `docker compose exec app sh` でコンテナに入る
+4. **以降のすべての操作はコンテナ内で行う**
 
 ```bash
 docker compose up --build   # コンテナのビルドと起動
 docker compose up           # 起動（ビルド済みの場合）
 docker compose down         # コンテナの停止
-docker compose exec app sh  # コンテナへのシェル接続
+docker compose exec app sh  # コンテナへのシェル接続（作業はここから）
 ```
 
 ---
