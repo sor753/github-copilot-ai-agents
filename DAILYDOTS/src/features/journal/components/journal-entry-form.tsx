@@ -22,6 +22,37 @@ export const JournalEntryForm = ({
   const [mood, setMood] = useState<Mood>(initialValue.mood);
   const [text, setText] = useState(initialValue.text);
 
+  const quickDateOptions = useMemo(() => {
+    const formatDate = (value: Date): string => {
+      const year = value.getFullYear();
+      const month = `${value.getMonth() + 1}`.padStart(2, '0');
+      const day = `${value.getDate()}`.padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const buildDate = (offset: number): Date => {
+      const now = new Date();
+      const base = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      base.setDate(base.getDate() - offset);
+      return base;
+    };
+
+    return Array.from({ length: 7 }, (_, offset) => {
+      const targetDate = buildDate(offset);
+      const label =
+        offset === 0
+          ? '今日'
+          : offset === 1
+            ? '昨日'
+            : `${new Intl.DateTimeFormat('ja-JP', { weekday: 'long' }).format(targetDate)}`;
+
+      return {
+        label,
+        value: formatDate(targetDate),
+      };
+    });
+  }, []);
+
   const canSubmit = useMemo(() => {
     return date.length > 0 && text.trim().length > 0;
   }, [date, text]);
@@ -49,35 +80,43 @@ export const JournalEntryForm = ({
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium text-stone-700" htmlFor="entry-mood">
-        気分
-        <div className="relative">
-          <select
-            id="entry-mood"
-            className="w-full appearance-none rounded-md border border-stone-300 bg-white px-3 py-2 pr-12 text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            value={mood}
-            onChange={(event) => setMood(event.target.value as Mood)}
+      <div className="flex flex-wrap gap-2" aria-label="クイック日付選択">
+        {quickDateOptions.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            className="rounded-full border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            onClick={() => setDate(option.value)}
           >
-            {MOOD_OPTIONS.map((option) => (
-              <option value={option.value} key={option.value}>
+            {option.label}
+          </button>
+        ))}
+      </div>
+
+      <fieldset className="flex flex-col gap-2">
+        <legend className="text-sm font-medium text-stone-700">気分</legend>
+        <div className="flex flex-wrap gap-2">
+          {MOOD_OPTIONS.map((option) => {
+            const isActive = mood === option.value;
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                  isActive
+                    ? 'border-accent bg-accent text-white'
+                    : 'border-stone-300 bg-white text-stone-700 hover:border-accent hover:text-accent'
+                }`}
+                onClick={() => setMood(option.value)}
+                aria-pressed={isActive}
+              >
                 {option.label}
-              </option>
-            ))}
-          </select>
-          <span
-            className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-stone-500"
-            aria-hidden
-          >
-            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path
-                fillRule="evenodd"
-                d="M5.23 7.21a.75.75 0 011.06.02L10 11.123l3.71-3.894a.75.75 0 111.08 1.04l-4.25 4.46a.75.75 0 01-1.08 0l-4.25-4.46a.75.75 0 01.02-1.06z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </span>
+              </button>
+            );
+          })}
         </div>
-      </label>
+      </fieldset>
 
       <label className="flex flex-col gap-1 text-sm font-medium text-stone-700" htmlFor="entry-text">
         ジャーナル
