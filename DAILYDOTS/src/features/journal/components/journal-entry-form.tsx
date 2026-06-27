@@ -128,6 +128,7 @@ export const JournalEntryForm = ({
           placeholder="今日の出来事や気持ちを書いてください"
           required
         />
+        <span className="text-right text-xs font-normal text-stone-500">{text.length}文字</span>
       </label>
 
       {helperText ? <p className="text-sm text-stone-600">{helperText}</p> : null}
