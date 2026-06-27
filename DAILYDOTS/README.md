@@ -1,52 +1,111 @@
 # DailyDots
 
-Vite + React + Tailwind CSS で構築したデイリージャーナルアプリです。  
-1日につき1件のエントリを保存し、作成・編集・閲覧・削除できます。
+DailyDots は、日々の出来事と気分を記録するデイリージャーナルアプリです。  
+1日1件の記録を基準に、作成・更新・閲覧・削除をシンプルに行えます。
 
-## 主要機能
+## 機能
 
-- ホーム: サマリー表示 + 今日のクイック追加
-- マイジャーナル: 一覧 + 開く/編集/削除
-- 新規/更新: 日付指定で作成または更新（同日がある場合は上書き）
-- データ保存: localStorage（サービス層経由）
+- ホーム画面でサマリー確認（総エントリ数、直近7日、連続記録、最新の気分）
+- 今日のクイック追加（当日分の作成/更新）
+- マイジャーナルで一覧表示、詳細表示、編集、削除
+- 日付単位の upsert（同一日付は新規作成ではなく更新）
+- localStorage を使った永続化（サービス層経由）
 
 ## 技術スタック
 
-- Vite
-- React + TypeScript
-- React Router v6
-- TanStack Query
-- Tailwind CSS
-- Vitest
+| カテゴリ | 技術 |
+|---|---|
+| フレームワーク | Vite + React 19 |
+| 言語 | TypeScript |
+| ルーティング | React Router v6 |
+| サーバー状態管理 | TanStack Query v5 |
+| スタイリング | Tailwind CSS |
+| テスト | Vitest |
+| リント | ESLint |
+| 実行環境 | Docker / Docker Compose |
 
-## セットアップ（Docker）
+## 開発環境のセットアップ
+
+### 前提条件
+
+- Docker
+
+### 手順
+
+1. リポジトリをクローン
+2. 必要に応じて環境変数ファイルを用意（現状 `.env.example` は未配置）
+3. コンテナをビルドして起動
 
 ```bash
 docker compose up --build
 ```
 
-別ターミナルでコンテナに入って操作:
+4. 別ターミナルでコンテナに入り、依存関係をインストール
 
 ```bash
 docker compose exec app sh
 npm install
+```
+
+5. 開発サーバーを起動
+
+```bash
 npm run dev
 ```
 
-## 検証コマンド
+## コマンド
 
 ```bash
+docker compose exec app sh
+npm run dev
+npm run build
 npm run lint
 npm run typecheck
 npm run test
 ```
 
-## Supabase への切り替え方
+## 環境変数
 
-データアクセスはサービス層で抽象化しています。  
-以下を差し替えるだけで移行可能です。
+現時点で、リポジトリに `.env.example` はありません。  
+そのため必須環境変数は未定義です。
 
-- `src/features/journal/services/journal-storage.ts`
-- `src/features/journal/api.ts`
+| 変数名 | 説明 | 必須 |
+|---|---|---|
+| - | 現在は未定義 | - |
 
-UI 層は TanStack Query フック経由で呼び出しているため、画面側の変更は最小で済みます。
+## ディレクトリ構成
+
+```text
+.
+├── src/
+│   ├── features/
+│   │   └── journal/
+│   │       ├── components/
+│   │       ├── hooks/
+│   │       ├── services/
+│   │       ├── api.ts
+│   │       └── types.ts
+│   ├── pages/
+│   ├── shared/
+│   │   ├── components/
+│   │   └── lib/
+│   ├── App.tsx
+│   └── main.tsx
+├── docs/
+│   ├── architecture.md
+│   ├── database.md
+│   └── features.md
+├── Dockerfile
+├── docker-compose.yml
+└── package.json
+```
+
+## ドキュメント
+
+- アーキテクチャ: `docs/architecture.md`
+- データ構成: `docs/database.md`
+- 機能仕様: `docs/features.md`
+
+## ライセンス
+
+ライセンスは未設定です。必要に応じて `LICENSE` を追加してください。
