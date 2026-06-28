@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
 import { MOOD_OPTIONS } from './mood-badge';
 import type { Mood, UpsertJournalEntryInput } from '../types';
@@ -8,6 +8,7 @@ interface JournalEntryFormProps {
   submitLabel: string;
   isSubmitting: boolean;
   helperText?: string;
+  errorMessage?: string;
   onSubmit: (value: UpsertJournalEntryInput) => Promise<void>;
 }
 
@@ -16,11 +17,18 @@ export const JournalEntryForm = ({
   submitLabel,
   isSubmitting,
   helperText,
+  errorMessage,
   onSubmit,
 }: JournalEntryFormProps) => {
   const [date, setDate] = useState(initialValue.date);
   const [mood, setMood] = useState<Mood>(initialValue.mood);
   const [text, setText] = useState(initialValue.text);
+
+  useEffect(() => {
+    setDate(initialValue.date);
+    setMood(initialValue.mood);
+    setText(initialValue.text);
+  }, [initialValue.date, initialValue.mood, initialValue.text]);
 
   const quickDateOptions = useMemo(() => {
     const formatDate = (value: Date): string => {
@@ -85,7 +93,7 @@ export const JournalEntryForm = ({
           <button
             key={option.value}
             type="button"
-            className="rounded-full border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="min-h-11 min-w-11 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             onClick={() => setDate(option.value)}
           >
             {option.label}
@@ -103,7 +111,7 @@ export const JournalEntryForm = ({
               <button
                 key={option.value}
                 type="button"
-                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`min-h-11 min-w-11 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   isActive
                     ? 'border-accent bg-accent text-white'
                     : 'border-stone-300 bg-white text-stone-700 hover:border-accent hover:text-accent'
@@ -132,6 +140,7 @@ export const JournalEntryForm = ({
       </label>
 
       {helperText ? <p className="text-sm text-stone-600">{helperText}</p> : null}
+      {errorMessage ? <p className="text-sm text-danger">{errorMessage}</p> : null}
 
       <button
         type="submit"

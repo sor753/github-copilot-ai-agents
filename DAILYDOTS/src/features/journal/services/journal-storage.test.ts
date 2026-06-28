@@ -86,4 +86,42 @@ describe('LocalStorageJournalRepository', () => {
     expect(entries).toHaveLength(1);
     expect(entries[0].date).toBe('2026-06-10');
   });
+
+  it('counts recent entries including the 7-day boundary date', async () => {
+    const storage = createMemoryStorage();
+    const repository = new LocalStorageJournalRepository(storage);
+    const base = new Date();
+
+    const formatDate = (date: Date): string => {
+      const year = date.getFullYear();
+      const month = `${date.getMonth() + 1}`.padStart(2, '0');
+      const day = `${date.getDate()}`.padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const atOffset = (offset: number): string => {
+      const value = new Date(base.getFullYear(), base.getMonth(), base.getDate());
+      value.setDate(value.getDate() - offset);
+      return formatDate(value);
+    };
+
+    await repository.upsert({
+      date: atOffset(0),
+      mood: 'good',
+      text: 'today',
+    });
+    await repository.upsert({
+      date: atOffset(6),
+      mood: 'neutral',
+      text: 'boundary day',
+    });
+    await repository.upsert({
+      date: atOffset(7),
+      mood: 'bad',
+      text: 'outside window',
+    });
+
+    const summary = await repository.getSummary();
+    expect(summary.recentEntries).toBe(2);
+  });
 });

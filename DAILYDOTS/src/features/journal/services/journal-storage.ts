@@ -21,7 +21,19 @@ interface StorageLike {
 const STORAGE_KEY = 'dailydots:journal-entries:v1';
 const VALID_MOODS: Mood[] = ['great', 'good', 'neutral', 'bad', 'terrible'];
 
+const toLocalDateString = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const toStartOfLocalDay = (date: Date): Date => {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+};
+
 const isMood = (value: unknown): value is Mood => {
+  // `value` is guaranteed to be a string by the left-hand condition.
   return typeof value === 'string' && VALID_MOODS.includes(value as Mood);
 };
 
@@ -30,6 +42,7 @@ const isJournalEntry = (value: unknown): value is JournalEntry => {
     return false;
   }
 
+  // We only access properties after narrowing to a non-null object.
   const candidate = value as Record<string, unknown>;
   return (
     typeof candidate.date === 'string' &&
@@ -43,10 +56,6 @@ const sortByDateDesc = (entries: JournalEntry[]): JournalEntry[] => {
   return [...entries].sort((a, b) => b.date.localeCompare(a.date));
 };
 
-const toIsoDate = (date: Date): string => {
-  return date.toISOString().slice(0, 10);
-};
-
 const countStreakDays = (entries: JournalEntry[]): number => {
   if (entries.length === 0) {
     return 0;
@@ -56,7 +65,7 @@ const countStreakDays = (entries: JournalEntry[]): number => {
   const cursor = new Date();
   let streak = 0;
 
-  while (allDates.has(toIsoDate(cursor))) {
+  while (allDates.has(toLocalDateString(cursor))) {
     streak += 1;
     cursor.setDate(cursor.getDate() - 1);
   }
@@ -65,14 +74,13 @@ const countStreakDays = (entries: JournalEntry[]): number => {
 };
 
 const countRecentEntries = (entries: JournalEntry[]): number => {
-  const today = new Date();
+  const today = toStartOfLocalDay(new Date());
   const from = new Date(today);
   from.setDate(today.getDate() - 6);
+  const todayKey = toLocalDateString(today);
+  const fromKey = toLocalDateString(from);
 
-  return entries.filter((entry) => {
-    const date = new Date(`${entry.date}T00:00:00`);
-    return date >= from && date <= today;
-  }).length;
+  return entries.filter((entry) => entry.date >= fromKey && entry.date <= todayKey).length;
 };
 
 class LocalStorageJournalRepository implements JournalRepository {

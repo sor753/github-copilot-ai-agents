@@ -9,17 +9,29 @@ import {
   useUpsertJournalEntry,
 } from '../features/journal/hooks/use-journal-queries';
 
-const today = new Date().toISOString().slice(0, 10);
+const formatLocalDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const JournalFormPage = () => {
   const navigate = useNavigate();
   const params = useParams();
   const editingDate = params.date;
   const isEditMode = Boolean(editingDate);
+  const today = formatLocalDate(new Date());
 
   const allEntriesQuery = useJournalEntries();
   const entryQuery = useJournalEntry(editingDate ?? '');
   const upsertMutation = useUpsertJournalEntry();
+  const submitErrorMessage =
+    upsertMutation.isError && upsertMutation.error instanceof Error
+      ? upsertMutation.error.message
+      : upsertMutation.isError
+        ? '保存に失敗しました。時間をおいて再度お試しください。'
+        : undefined;
 
   if (allEntriesQuery.isLoading || (isEditMode && entryQuery.isLoading)) {
     return (
@@ -63,9 +75,14 @@ const JournalFormPage = () => {
           submitLabel={isEditMode ? '変更を保存' : '作成または更新'}
           isSubmitting={upsertMutation.isPending}
           helperText={isEditMode ? '既存エントリを編集中です。' : '同じ日付が存在すると上書きされます。'}
+          errorMessage={submitErrorMessage}
           onSubmit={async (value) => {
-            await upsertMutation.mutateAsync(value);
-            navigate(`/journal/${value.date}`);
+            try {
+              await upsertMutation.mutateAsync(value);
+              navigate(`/journal/${value.date}`);
+            } catch {
+              // Error is displayed via mutation state.
+            }
           }}
         />
       </section>

@@ -10,12 +10,24 @@ import {
   useUpsertJournalEntry,
 } from '../features/journal/hooks/use-journal-queries';
 
-const today = new Date().toISOString().slice(0, 10);
+const formatLocalDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const HomePage = () => {
+  const today = formatLocalDate(new Date());
   const summaryQuery = useJournalSummary();
   const todayEntryQuery = useJournalEntry(today);
   const upsertMutation = useUpsertJournalEntry();
+  const submitErrorMessage =
+    upsertMutation.isError && upsertMutation.error instanceof Error
+      ? upsertMutation.error.message
+      : upsertMutation.isError
+        ? '保存に失敗しました。時間をおいて再度お試しください。'
+        : undefined;
 
   if (summaryQuery.isLoading || todayEntryQuery.isLoading) {
     return (
@@ -85,9 +97,14 @@ const HomePage = () => {
             }}
             submitLabel={todayEntry ? '今日の記録を更新' : '今日の記録を作成'}
             helperText={todayEntry ? '本日の既存エントリを編集中です。' : undefined}
+            errorMessage={submitErrorMessage}
             isSubmitting={upsertMutation.isPending}
             onSubmit={async (value) => {
-              await upsertMutation.mutateAsync(value);
+              try {
+                await upsertMutation.mutateAsync(value);
+              } catch {
+                // Error is displayed via mutation state.
+              }
             }}
           />
         </div>

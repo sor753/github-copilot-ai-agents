@@ -1,4 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseMutationResult,
+  type UseQueryResult,
+} from '@tanstack/react-query';
 
 import {
   deleteJournalEntryByDate,
@@ -8,16 +14,16 @@ import {
   JOURNAL_QUERY_KEYS,
   upsertJournalEntry,
 } from '../api';
-import type { JournalEntry, UpsertJournalEntryInput } from '../types';
+import type { JournalEntry, JournalSummary, UpsertJournalEntryInput } from '../types';
 
-export const useJournalEntries = () => {
+export const useJournalEntries = (): UseQueryResult<JournalEntry[], Error> => {
   return useQuery({
     queryKey: JOURNAL_QUERY_KEYS.entries,
     queryFn: fetchJournalEntries,
   });
 };
 
-export const useJournalEntry = (date: string) => {
+export const useJournalEntry = (date: string): UseQueryResult<JournalEntry | null, Error> => {
   return useQuery({
     queryKey: JOURNAL_QUERY_KEYS.entry(date),
     queryFn: () => fetchJournalEntryByDate(date),
@@ -25,14 +31,18 @@ export const useJournalEntry = (date: string) => {
   });
 };
 
-export const useJournalSummary = () => {
+export const useJournalSummary = (): UseQueryResult<JournalSummary, Error> => {
   return useQuery({
     queryKey: JOURNAL_QUERY_KEYS.summary,
     queryFn: fetchJournalSummary,
   });
 };
 
-export const useUpsertJournalEntry = () => {
+export const useUpsertJournalEntry = (): UseMutationResult<
+  JournalEntry,
+  Error,
+  UpsertJournalEntryInput
+> => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -45,7 +55,7 @@ export const useUpsertJournalEntry = () => {
   });
 };
 
-export const useDeleteJournalEntry = () => {
+export const useDeleteJournalEntry = (): UseMutationResult<void, Error, string> => {
   const queryClient = useQueryClient();
 
   return useMutation({

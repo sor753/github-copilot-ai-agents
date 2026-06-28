@@ -19,7 +19,7 @@ export const AppLayout = ({ title, subtitle, children }: AppLayoutProps) => {
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                `inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   isActive ? 'bg-accent-soft text-amber-900' : 'text-stone-700 hover:bg-stone-100'
                 }`
               }
@@ -30,7 +30,7 @@ export const AppLayout = ({ title, subtitle, children }: AppLayoutProps) => {
               to="/journal"
               end
               className={({ isActive }) =>
-                `rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                `inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   isActive ? 'bg-accent-soft text-amber-900' : 'text-stone-700 hover:bg-stone-100'
                 }`
               }
@@ -40,7 +40,7 @@ export const AppLayout = ({ title, subtitle, children }: AppLayoutProps) => {
             <NavLink
               to="/journal/new"
               className={({ isActive }) =>
-                `rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                `inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   isActive ? 'bg-accent-soft text-amber-900' : 'text-stone-700 hover:bg-stone-100'
                 }`
               }
