@@ -21,7 +21,10 @@ export const JournalList = ({ entries, onDelete, isDeleting }: JournalListProps)
   return (
     <ul className="flex flex-col gap-3">
       {entries.map((entry) => (
-        <li key={entry.date} className="rounded-lg border border-stone-200 bg-white p-4">
+        <li
+          key={entry.date}
+          className="rounded-lg border border-stone-300/80 bg-white p-4 shadow-[0_1px_2px_rgba(41,37,36,0.06),0_8px_20px_rgba(41,37,36,0.08)] transition-transform transition-shadow duration-200 hover:-translate-y-0.5 hover:shadow-[0_2px_6px_rgba(41,37,36,0.10),0_14px_28px_rgba(41,37,36,0.12)]"
+        >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-2">
               <p className="text-sm font-semibold text-stone-900">{entry.date}</p>
