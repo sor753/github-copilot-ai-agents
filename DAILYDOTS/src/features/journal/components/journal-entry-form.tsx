@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react';
 
+import { DatePicker } from './date-picker';
 import { MOOD_OPTIONS } from './mood-badge';
 import type { Mood, UpsertJournalEntryInput } from '../types';
 
@@ -22,37 +23,6 @@ export const JournalEntryForm = ({
   const [mood, setMood] = useState<Mood>(initialValue.mood);
   const [text, setText] = useState(initialValue.text);
 
-  const quickDateOptions = useMemo(() => {
-    const formatDate = (value: Date): string => {
-      const year = value.getFullYear();
-      const month = `${value.getMonth() + 1}`.padStart(2, '0');
-      const day = `${value.getDate()}`.padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
-
-    const buildDate = (offset: number): Date => {
-      const now = new Date();
-      const base = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      base.setDate(base.getDate() - offset);
-      return base;
-    };
-
-    return Array.from({ length: 7 }, (_, offset) => {
-      const targetDate = buildDate(offset);
-      const label =
-        offset === 0
-          ? '今日'
-          : offset === 1
-            ? '昨日'
-            : `${new Intl.DateTimeFormat('ja-JP', { weekday: 'long' }).format(targetDate)}`;
-
-      return {
-        label,
-        value: formatDate(targetDate),
-      };
-    });
-  }, []);
-
   const canSubmit = useMemo(() => {
     return date.length > 0 && text.trim().length > 0;
   }, [date, text]);
@@ -68,29 +38,9 @@ export const JournalEntryForm = ({
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-      <label className="flex flex-col gap-1 text-sm font-medium text-stone-700" htmlFor="entry-date">
-        日付
-        <input
-          id="entry-date"
-          type="date"
-          className="w-full max-w-72 rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          value={date}
-          onChange={(event) => setDate(event.target.value)}
-          required
-        />
-      </label>
-
-      <div className="flex flex-wrap gap-2" aria-label="クイック日付選択">
-        {quickDateOptions.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            className="rounded-full border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            onClick={() => setDate(option.value)}
-          >
-            {option.label}
-          </button>
-        ))}
+      <div className="flex flex-col gap-1">
+        <p className="text-sm font-medium text-stone-700">日付</p>
+        <DatePicker value={date} onChange={setDate} />
       </div>
 
       <fieldset className="flex flex-col gap-2">
